@@ -26,7 +26,9 @@ cd os-project
 
 ### 2. Start Host Metrics Collector (Windows Only)
 
-Since Docker on Windows runs in a VM, it cannot directly access hardware sensors. Run this script in a **PowerShell** window on your host machine to collect GPU and CPU temperature data:
+Since Docker on Windows runs in a VM, it cannot directly access the host's CPU thermal sensors. Run this script in a **PowerShell** window on your host machine to collect **CPU Temperature**:
+
+(Note: GPU metrics are collected directly by the Docker container via NVIDIA passthrough).
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\export_host_metrics.ps1

@@ -17,6 +17,13 @@ services:
       - HOST_METRICS_PATH=/app/host_metrics.json
       # Optional: Adjust interval
       - INTERVAL=3
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
     restart: unless-stopped
 
   reporting:

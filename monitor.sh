@@ -457,13 +457,13 @@ while true; do
   GPU_HWSLOW="$(normalize_na "$(echo "$GPU_INFO" | cut -d',' -f8)")"
   GPU_HEALTH="$(gpu_health_from_reasons "$GPU_THERMAL" "$GPU_PCAP" "$GPU_HWSLOW")"
 
-  # GPU Name (from host if available)
+  # GPU Name (try local first, then host)
   GPU_NAME=""
-  if [[ -f "$HOST_METRICS_FILE" ]]; then
-     GPU_NAME="$(host_json_get gpu_name_host)"
-  fi
-  if [[ -z "$GPU_NAME" || "$GPU_NAME" == "N/A" ]] && command -v nvidia-smi >/dev/null 2>&1; then
+  if command -v nvidia-smi >/dev/null 2>&1; then
       GPU_NAME="$(nvidia-smi --query-gpu=name --format=csv,noheader 2>/dev/null | head -n1 || echo "")"
+  fi
+  if [[ -z "$GPU_NAME" || "$GPU_NAME" == "N/A" ]] && [[ -f "$HOST_METRICS_FILE" ]]; then
+     GPU_NAME="$(host_json_get gpu_name_host)"
   fi
 
   # Disks
