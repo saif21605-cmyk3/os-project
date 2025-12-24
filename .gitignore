@@ -1,0 +1,21 @@
+# Output / Data
+out/
+host_metrics.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Docker
+.docker_metrics

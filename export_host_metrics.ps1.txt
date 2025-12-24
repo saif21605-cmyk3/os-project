@@ -1,0 +1,64 @@
+# export_host_metrics.ps1 (NO-LOCK VERSION)
+$outDir = "C:\Users\adham\system-monitor\out"
+if (!(Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir | Out-Null }
+
+$latest = Join-Path $outDir "host_metrics.latest.json"
+
+# ---- CPU temp from LibreHardwareMonitor web server (optional) ----
+$cpuTemp = $null
+try {
+    $jsonText = (Invoke-WebRequest -Uri "http://127.0.0.1:8085/data.json" -UseBasicParsing -TimeoutSec 2).Content
+    $obj = $jsonText | ConvertFrom-Json
+
+    function Find-Temp($node) {
+        if ($null -eq $node) { return $null }
+        if ($node.PSObject.Properties.Name -contains "Text") {
+            $t = [string]$node.Text
+            if ($t -match "CPU" -and ($node.PSObject.Properties.Name -contains "Children")) {
+                foreach ($c in $node.Children) {
+                    if ([string]$c.Text -match "Temperature" -and ($c.PSObject.Properties.Name -contains "Children")) {
+                        foreach ($s in $c.Children) {
+                            if ([string]$s.Text -match "Package|Tctl|Core" -and $s.Value) { return $s.Value }
+                        }
+                    }
+                }
+            }
+        }
+        if ($node.PSObject.Properties.Name -contains "Children") {
+            foreach ($ch in $node.Children) {
+                $r = Find-Temp $ch
+                if ($null -ne $r) { return $r }
+            }
+        }
+        return $null
+    }
+
+    $val = Find-Temp $obj
+    if ($val -match "([0-9]+(\.[0-9]+)?)") { $cpuTemp = [double]$matches[1] }
+} catch { $cpuTemp = $null }
+
+# ---- Disk health ----
+$diskHealth = $null
+try {
+    $disk = Get-PhysicalDisk | Sort-Object -Property FriendlyName | Select-Object -First 1
+    if ($disk) {
+        $diskHealth = @{ FriendlyName = $disk.FriendlyName; HealthStatus = $disk.HealthStatus }
+    }
+} catch { $diskHealth = $null }
+
+$data = @{
+    timestamp_host  = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+    cpu_temp_c_host = $cpuTemp
+    disks_host      = $diskHealth
+}
+
+$json = $data | ConvertTo-Json -Depth 6
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+
+# ---- atomic replace: write temp then rename to latest ----
+$tmp = Join-Path $outDir ("host_metrics.tmp." + [Guid]::NewGuid().ToString() + ".json")
+[System.IO.File]::WriteAllText($tmp, $json, $utf8NoBom)
+
+# Replace latest safely (even if latest is being read)
+Move-Item -Force $tmp $latest
+"OK -> $latest"

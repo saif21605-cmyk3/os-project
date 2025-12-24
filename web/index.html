@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>System Monitor</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body>
+  <div class="bg"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">SM</div>
+      <div>
+        <div class="title">System Monitor</div>
+        <div class="subtitle" id="subtitle">Live metrics dashboard</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <div class="pill" id="pillStatus">Connecting…</div>
+
+      <div class="pill pill-mini">
+        <span class="muted2">Auto</span>
+        <select id="selInterval" class="select" aria-label="Auto refresh interval">
+          <option value="1000">1s</option>
+          <option value="1500" selected>1.5s</option>
+          <option value="2000">2s</option>
+          <option value="3000">3s</option>
+        </select>
+      </div>
+
+      <button class="btn" id="btnRefresh" title="Refresh now">Refresh</button>
+      <button class="btn btn-ghost" id="btnPause" title="Pause auto refresh">Pause</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- Summary strip -->
+    <section class="summary">
+      <div class="summary-item">
+        <div class="label">CPU</div>
+        <div class="value"><span id="sumCpu">—</span><span class="unit">%</span></div>
+        <canvas class="spark" id="sparkCpu" width="160" height="42"></canvas>
+      </div>
+
+      <div class="summary-item">
+        <div class="label">GPU</div>
+        <div class="value"><span id="sumGpu">—</span><span class="unit">%</span></div>
+        <canvas class="spark" id="sparkGpu" width="160" height="42"></canvas>
+      </div>
+
+      <div class="summary-item">
+        <div class="label">RAM</div>
+        <div class="value"><span id="sumRam">—</span><span class="unit">MB</span></div>
+        <div class="hint" id="sumRamHint">—</div>
+      </div>
+
+      <div class="summary-item">
+        <div class="label">NET</div>
+        <div class="value"><span id="sumNet">—</span><span class="unit">B/s</span></div>
+        <div class="hint" id="sumNetHint">RX/TX</div>
+      </div>
+    </section>
+
+    <!-- Cards grid -->
+    <section class="grid">
+      <section class="card">
+        <div class="card-head">
+          <h3>CPU</h3>
+          <div class="badges">
+            <span class="badge" id="cpuTempBadge">Temp</span>
+            <span class="badge ghost" id="cpuCoresBadge">Cores</span>
+          </div>
+        </div>
+        <div class="kv" id="cpuBox"></div>
+        <div class="divider"></div>
+        <div class="small" id="cpuModel">—</div>
+        <!-- New Chart -->
+        <div class="chart-box">
+             <canvas id="chartCpuTemp" height="40"></canvas>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h3>GPU</h3>
+          <div class="badges">
+            <span class="badge" id="gpuHealthBadge">HEALTH</span>
+            <span class="badge ghost" id="gpuPstateBadge">PSTATE</span>
+          </div>
+        </div>
+        <div class="kv" id="gpuBox"></div>
+        <div class="divider"></div>
+        <div class="rowline">
+            <div class="small" id="gpuName">—</div>
+        </div>
+        <div class="rowline">
+          <div class="muted">Throttle</div>
+          <div class="small" id="gpuThrottle">—</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h3>Memory</h3>
+          <div class="badges">
+            <span class="badge ghost" id="memBadge">MB</span>
+          </div>
+        </div>
+        <div class="progress">
+          <div class="progress-bar" id="memBar"></div>
+        </div>
+        <div class="kv" id="memBox"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h3>Disk</h3>
+          <div class="badges">
+            <span class="badge" id="diskSmartBadge">SMART</span>
+            <span class="badge ghost" id="diskRootBadge">/</span>
+          </div>
+        </div>
+        <div class="kv" id="diskBox"></div>
+        <div class="divider"></div>
+        <div class="table-wrap">
+          <table class="table" id="diskTable">
+            <thead>
+              <tr>
+                <th>FS</th><th>Type</th><th>Mount</th><th>Used</th><th>Total</th><th>%</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h3>Network</h3>
+          <div class="badges">
+            <span class="badge ghost" id="netIfaceBadge">iface</span>
+          </div>
+        </div>
+        <div class="kv" id="netBox"></div>
+        <div class="divider"></div>
+        <div class="small muted" id="netNote">Rates are computed from deltas between refreshes.</div>
+      </section>
+
+      <!-- Alerts -->
+      <section class="card">
+        <div class="card-head">
+          <h3>Alerts</h3>
+          <div class="badges">
+            <span class="badge ghost" id="alertsBadge">0 alerts</span>
+          </div>
+        </div>
+        <div class="kv" id="alertsBox"></div>
+        <div class="divider"></div>
+        <div class="small muted">
+          Thresholds: CPU ≥ 90% • RAM ≥ 85% • Disk ≥ 90%
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h3>Status</h3>
+          <div class="badges">
+            <span class="badge ghost" id="tsBadge">TS</span>
+          </div>
+        </div>
+        <div class="kv" id="statusBox"></div>
+        <div class="divider"></div>
+        <div class="small" id="uptime">—</div>
+      </section>
+    </section>
+
+    <!-- History -->
+    <section class="history-card" id="historySection">
+      <div class="history-head">
+        <div>
+          <div class="history-title">History</div>
+          <div class="history-sub muted">Show last</div>
+        </div>
+
+        <div class="history-actions">
+          <span class="pill pill-mini" id="histPill">0 records</span>
+
+          <a class="btn btn-ghost" id="btnDownloadJsonl" href="#">Download JSONL</a>
+
+          <select id="selHistoryN" class="select" aria-label="History records count">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50" selected>50</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="history-chart-wrap">
+        <canvas id="histChart" class="history-chart"></canvas>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="table-wrap big">
+        <table class="table" id="histTable">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>CPU%</th>
+              <th>RAM%</th>
+              <th>Disk%</th>
+              <th>GPU%</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="divider"></div>
+      <div class="small muted">
+        History is stored in <code>out/metrics.jsonl</code> (one JSON record per line) and fetched via <code>/api/history</code>.
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="muted">Tip: Keep <code>monitor.sh</code> running to update <code>out/metrics.json</code>.</div>
+    </footer>
+  </main>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

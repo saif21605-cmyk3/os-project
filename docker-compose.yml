@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  collector:
+    build:
+      context: .
+      dockerfile: Dockerfile.collector
+    container_name: monitor-collector
+    volumes:
+      - monitor-data:/app/out
+      # Map host metrics if on Windows/WSL
+      # Note: This path might need adjustment depending on where the host script writes the file
+      # For now, we assume it's in the same project structure on the host
+      - ./out/host_metrics.json:/app/host_metrics.json:ro
+    environment:
+      - OUTPUT_PATH=/app/out
+      - HOST_METRICS_PATH=/app/host_metrics.json
+      # Optional: Adjust interval
+      - INTERVAL=3
+    restart: unless-stopped
+
+  reporting:
+    build:
+      context: .
+      dockerfile: Dockerfile.reporting
+    container_name: monitor-reporter
+    volumes:
+      - monitor-data:/app/out
+    environment:
+      - OUTPUT_PATH=/app/out
+    ports:
+      - "5000:5000"
+    depends_on:
+      - collector
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    container_name: monitor-web
+    ports:
+      - "80:80"
+    depends_on:
+      - reporting
+    restart: unless-stopped
+
+volumes:
+  monitor-data:

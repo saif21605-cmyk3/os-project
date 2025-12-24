@@ -1,0 +1,303 @@
+:root{
+  --bg1:#070A12;
+  --bg2:#0B1024;
+  --card: rgba(255,255,255,0.06);
+  --card2: rgba(255,255,255,0.08);
+  --border: rgba(255,255,255,0.12);
+  --text: #EAF0FF;
+  --muted: rgba(234,240,255,0.72);
+  --muted2: rgba(234,240,255,0.55);
+  --good: #2DD4BF;
+  --warn: #FBBF24;
+  --bad:  #FB7185;
+  --info: #60A5FA;
+
+  /* ✅ used by all charts */
+  --spark: rgba(234,240,255,0.92);
+
+  /* small UI helpers */
+  --shadow: 0 16px 40px rgba(0,0,0,0.35);
+}
+
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+
+body{
+  margin:0;
+  color:var(--text);
+  font: 14px/1.45 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  background: radial-gradient(1200px 600px at 20% 10%, #1B2A6B22, transparent 60%),
+              radial-gradient(900px 500px at 80% 30%, #10B9811A, transparent 60%),
+              linear-gradient(180deg, var(--bg1), var(--bg2));
+  overflow-x:hidden;
+}
+
+/* ✅ nicer scrollbars (optional) */
+*::-webkit-scrollbar{ width: 10px; height:10px; }
+*::-webkit-scrollbar-track{ background: rgba(255,255,255,0.04); border-radius: 999px; }
+*::-webkit-scrollbar-thumb{ background: rgba(234,240,255,0.20); border-radius: 999px; }
+*::-webkit-scrollbar-thumb:hover{ background: rgba(234,240,255,0.28); }
+
+.bg{
+  position:fixed; inset:-20%;
+  background: radial-gradient(600px 300px at 30% 20%, #60A5FA22, transparent 60%),
+              radial-gradient(700px 350px at 70% 60%, #FB718522, transparent 60%);
+  filter: blur(24px);
+  pointer-events:none;
+  z-index:-1;
+}
+
+.topbar{
+  position:sticky; top:0;
+  display:flex; align-items:center; justify-content:space-between;
+  gap: 12px;
+  padding:16px 20px;
+  background: rgba(10,14,28,0.65);
+  border-bottom:1px solid var(--border);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+}
+
+.brand{ display:flex; gap:12px; align-items:center; }
+.logo{
+  width:42px; height:42px; border-radius:14px;
+  display:grid; place-items:center;
+  background: linear-gradient(135deg, #60A5FA33, #2DD4BF22);
+  border:1px solid var(--border);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+  font-weight:800; letter-spacing:0.5px;
+}
+.title{ font-size:16px; font-weight:800; }
+.subtitle{ color:var(--muted2); font-size:12px; margin-top:2px; }
+
+.actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.pill{
+  padding:8px 10px; border-radius:999px;
+  border:1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  color:var(--muted);
+}
+.pill-mini{ padding:7px 10px; display:flex; gap:8px; align-items:center; }
+
+.btn{
+  border:1px solid var(--border);
+  background: rgba(255,255,255,0.08);
+  color:var(--text);
+  padding:8px 12px;
+  border-radius:12px;
+  cursor:pointer;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+.btn:hover{ background: rgba(255,255,255,0.12); }
+.btn-ghost{ background: transparent; }
+
+.select{
+  border:1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  padding: 7px 10px;
+  border-radius: 12px;
+  outline: none;
+}
+.select option{ background: #0B1024; color: var(--text); }
+
+.muted2{ color: var(--muted2); }
+
+.wrap{ max-width: 1180px; margin: 0 auto; padding: 18px 18px 40px; }
+
+/* ---------- Summary ---------- */
+.summary{
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 10px 0 14px;
+}
+
+.summary-item{
+  padding: 12px 14px;
+  border:1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 14px 35px rgba(0,0,0,0.30);
+}
+
+.summary-item .label{ color: var(--muted2); font-size: 12px; }
+.summary-item .value{ font-size: 22px; font-weight: 900; margin-top: 2px; }
+.unit{ font-size: 12px; color: var(--muted2); margin-left: 6px; font-weight: 600; }
+.hint{ margin-top: 6px; color: var(--muted2); font-size: 12px; }
+
+/* ✅ spark canvases (CPU/GPU small) */
+.spark{
+  display:block;
+  margin-top: 8px;
+  width:100%;
+  height:42px;
+  opacity:0.95;
+}
+
+/* ---------- Grid cards ---------- */
+.grid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.card{
+  border:1px solid var(--border);
+  background: var(--card);
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+  min-height: 180px;
+}
+
+.card-head{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom: 10px;
+}
+.card h3{ margin:0; font-size: 14px; letter-spacing:0.4px; }
+
+.badges{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.badge{
+  padding: 4px 9px;
+  border-radius: 999px;
+  border:1px solid var(--border);
+  background: rgba(96,165,250,0.12);
+  color: var(--text);
+  font-size: 12px;
+  white-space:nowrap;
+}
+.badge.ghost{ background: rgba(255,255,255,0.06); color: var(--muted); }
+.badge.good{ background: rgba(45,212,191,0.16); }
+.badge.warn{ background: rgba(251,191,36,0.18); }
+.badge.bad{  background: rgba(251,113,133,0.18); }
+
+.kv{ display:grid; gap: 7px; }
+.kv .row{
+  display:flex; justify-content:space-between; gap:12px;
+  padding: 7px 0;
+  border-bottom: 1px dashed rgba(255,255,255,0.10);
+}
+.kv .row:last-child{ border-bottom:none; }
+.k{ color: var(--muted2); }
+.v{ font-weight: 800; color: var(--text); text-align:right; }
+
+.divider{ height:1px; background: rgba(255,255,255,0.10); margin: 10px 0; }
+.small{ font-size: 12px; color: var(--muted); }
+.muted{ color: var(--muted2); }
+.rowline{ display:flex; justify-content:space-between; gap:12px; }
+
+.progress{
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.10);
+  overflow:hidden;
+  margin: 8px 0 10px;
+}
+.progress-bar{
+  height:100%;
+  width:0%;
+  background: linear-gradient(90deg, rgba(96,165,250,0.85), rgba(45,212,191,0.85));
+}
+
+/* ---------- Tables ---------- */
+.table-wrap{
+  max-height: 170px;
+  overflow:auto;
+  border-radius: 12px;
+  border:1px solid rgba(255,255,255,0.10);
+}
+.table-wrap.big{ max-height: 280px; }
+
+.table{ width:100%; border-collapse: collapse; font-size: 12px; }
+.table thead th{
+  position:sticky; top:0;
+  background: rgba(10,14,28,0.75);
+  backdrop-filter: blur(8px);
+  padding: 8px;
+  text-align:left;
+  color: var(--muted);
+  border-bottom:1px solid rgba(255,255,255,0.10);
+}
+.table tbody td{
+  padding: 8px;
+  border-bottom:1px dashed rgba(255,255,255,0.10);
+  color: var(--text);
+}
+.table tbody tr:hover td{ background: rgba(255,255,255,0.05); }
+
+.footer{ margin-top: 14px; }
+code{ background: rgba(255,255,255,0.08); padding:2px 6px; border-radius:8px; border:1px solid rgba(255,255,255,0.12); }
+
+/* =========================================
+   ✅ History block (graph must be visible)
+   ========================================= */
+.history-card{
+  margin-top: 14px;
+  border:1px solid var(--border);
+  background: rgba(255,255,255,0.05);
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.35);
+  backdrop-filter: blur(12px);
+}
+
+.history-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap: 12px;
+}
+
+.history-title{
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+}
+.history-sub{ color: var(--muted2); margin-top: 4px; font-size: 12px; }
+
+.history-actions{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+/* wrapper gives stable size */
+.history-chart-wrap{
+  margin-top: 10px;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 16px;
+  padding: 10px;
+  background: rgba(255,255,255,0.04);
+}
+
+/* ✅ FIX: canvas must have stable height (not auto) */
+.history-chart{
+  width: 100%;
+  height: 240px; /* <-- make it bigger so it shows clearly */
+  display:block;
+}
+
+/* ✅ OPTIONAL: make canvas sharper */
+canvas{ image-rendering: auto; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 1020px){
+  .grid{ grid-template-columns: 1fr; }
+  .summary{ grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 520px){
+  .summary{ grid-template-columns: 1fr; }
+  .topbar{ padding: 14px 14px; }
+}
+@media (max-width: 400px){
+  .card-head{ flex-direction:column; align-items:flex-start; gap:8px; }
+}

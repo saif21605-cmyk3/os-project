@@ -1,0 +1,29 @@
+FROM python:3.11-slim
+
+# Install system utilities needed by monitor.sh
+# procps -> uptime, free, vmstat, etc. (often needed by bash scripts checking /proc)
+# lm-sensors -> sensors (cpu temp)
+# smartmontools -> smartctl (disk health)
+# bc -> used for some math calculation if script used it (script currently uses awk)
+# pciutils -> lspci (optional, script uses nvidia-smi mostly)
+RUN apt-get update && apt-get install -y \
+    procps \
+    lm-sensors \
+    smartmontools \
+    bc \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy the script
+COPY monitor.sh .
+RUN chmod +x monitor.sh
+
+# Default environment variables
+ENV OUTPUT_PATH="/app/out"
+ENV HOST_METRICS_PATH="/app/host_metrics.json"
+
+# Create output dir
+RUN mkdir -p /app/out
+
+CMD ["./monitor.sh"]
